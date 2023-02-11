@@ -6,17 +6,26 @@ const syntaxRules = syntaxRulesModule.syntaxRules;
 
 function syntaxAnalyzer(tokens) {
 
-    console.log(tokens);
     let index = 0;
     let correct = true;
     let currentRules;
+    let errorToken = []
+    let errorIndex = 0
 
+    // console.log(syntaxRules)
+    console.log(tokens)
     while (index < tokens.length) {
         if (!currentRules) {
             if (syntaxRules[tokens[index].type]) currentRules = syntaxRules[tokens[index].type];
             else {
                 correct = false;
-                console.log("Syntax error at line " + tokens[index].line);
+                if (tokens[index].type === "NO_MAIN_FUNCTION") {
+                    console.log("\nNo main function!\n")
+                } else if (tokens[index].type === "NO_BODY") {
+                    console.log("\nNo statements inside main function!\n")
+                } else if ( tokens[index].type === "UNDECLARED_VARIABLE") {
+                    console.log("\nSyntax error. Variable `" + tokens[index].token + "` at line " + tokens[index].line + " is not declared!.\n");
+                } else console.log("\nSyntax error. Unexpected token `" + tokens[index].token + "` at line " + tokens[index].line + ".\n");
                 break;
             }
         }
@@ -24,8 +33,12 @@ function syntaxAnalyzer(tokens) {
         correct = false;
         for (let x = 0; x < currentRules.length; x++) {
             for (let y = 0; y < currentRules[x].length; y++) {
-                if (currentRules[x][y] === tokens[index + y].type) correct = true;
+                if (currentRules[x][y] === tokens[index + y].type) {
+                    correct = true;
+                }
                 else {
+                    errorToken = tokens[index + y].token;
+                    errorIndex = index + y
                     correct = false;
                     break;
                 }
@@ -36,57 +49,36 @@ function syntaxAnalyzer(tokens) {
                 currentRules = null;
                 break;
             }
-        }
+        }   
+
+
 
         if (!correct) {
-            console.log("Syntax error at line " + tokens[index].line);
+
+            if ( tokens[errorIndex].type === "VARIABLE_ALREADY_DECLARED") {
+                console.log("\nSyntax error. Variable `" + tokens[errorIndex].token + "` at line " + tokens[index].line + " already declared!.\n");
+            } else if ( tokens[errorIndex].type === "UNDECLARED_VARIABLE") {
+                console.log("\nSyntax error. Variable `" + tokens[errorIndex].token + "` at line " + tokens[index].line + " is not declared!.\n");
+            } else if (tokens[errorIndex].type === "CLOSE_PARENTHESIS_BRACKET" || tokens[errorIndex].type === "INTEGER_NUMBER") {
+                console.log("\nExpected token `;` after `" + errorToken + "` at line " + tokens[index].line + ".\n");
+            } else if (tokens[errorIndex + 1].type === "OPEN_QUOTATION_SYMBOL" || tokens[errorIndex + 1].type && tokens[errorIndex + 1].type.includes("OPERATOR") ) {
+                console.log("\nExpected token `;` at line " + tokens[index].line + ".\n");
+            } else if (tokens[errorIndex-1].type === "IDENTIFIER" || tokens[errorIndex - 1].type === "INTEGER_NUMBER" ) {
+                console.log("\nSyntax error. Unexpected token `" + tokens[errorIndex - 1].token + "` at line " + tokens[index].line + ".\n");
+            } else if (tokens[errorIndex].type === "INTEGER_NUMBER" || tokens[errorIndex].type === "INVALID" ) {
+                console.log("\nSyntax error. Unexpected token `" + tokens[errorIndex].type + "` at line " + tokens[index].line + ".\n");
+            } else console.log("\nSyntax error. Unexpected token `" + tokens[errorIndex].token  + "` at line " + tokens[index].line + ".\n");
             break;
-        }
+        } 
     }
+
+    if (correct) {
+        console.log("\nSyntactically correct.\n");
+    } 
 }
 
-function constructParseTree(tokens, syntaxRules) {
-    let currentTokenIndex = 0;
-    let currentRule = syntaxRules;
-    let currentNode = { name: "Program", children: [] };
-  
-    function parse() {
-      if (currentTokenIndex >= tokens.length) {
-        return true;
-      }
-  
-      for (const rule of currentRule) {
-        let newNode = { name: rule[0], children: [] };
-        currentNode.children.push(newNode);
-        let previousTokenIndex = currentTokenIndex;
-        for (const subRule of rule.slice(1)) {
-          if (subRule === tokens[currentTokenIndex].type) {
-            currentTokenIndex++;
-          } else {
-            newNode.children = [];
-            currentNode.children.pop();
-            currentTokenIndex = previousTokenIndex;
-            break;
-          }
-        }
-  
-        if (newNode.children.length === rule.slice(1).length) {
-          currentNode = newNode;
-          if (parse()) {
-            currentNode = currentNode.parent;
-            return true;
-          }
-          currentNode = newNode.parent;
-        }
-      }
-  
-      return false;
-    }
-  
-    parse();
-    return currentNode;
-  }
-  
+
+
 
 
 const fs = require("fs");
@@ -94,13 +86,12 @@ const fs = require("fs");
 let code;
 
 fs.readFile("./sample.ls", "utf-8", (err, data) => {
-  if (err) {
-    throw err;
-  }
-  code = data;
-  const program = lexer(code);
-  syntaxAnalyzer(program);
+    if (err) {
+        throw err;
+    }
+    code = data;
+    const source = lexer(code);
+    syntaxAnalyzer(source);
 });
-
 
 

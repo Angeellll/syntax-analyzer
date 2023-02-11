@@ -31,6 +31,7 @@ keywords.set("forward", "FORWARD_JUMP_KEYWORD");
 keywords.set("backward", "BACKWARD_JUMP_KEYWORD");
 keywords.set("show", "SHOW_KEYWORD");
 keywords.set("enter", "ENTER_KEYWORD");
+keywords.set("while", "WHILE_KEYWORD");
 
 const operators = new Map();
 operators.set("+", "ADDITION_OPERATOR");
@@ -38,20 +39,26 @@ operators.set("-", "SUBTRACTION_OPERATOR");
 operators.set("*", "MULTIPLICATION_OPERATOR");
 operators.set("/", "DIVISION_OPERATOR");
 operators.set("%", "MODULUS_OPERATOR");
+
 operators.set("&&", "LOGICAL_AND_OPERATOR");
 operators.set("||", "LOGICAL_OR_OPERATOR");
 operators.set("!", "LOGICAL_NOT_OPERATOR");
+
 operators.set(">", "GREATER_THAN_OPERATOR");
+operators.set("<", "LESS_THAN_OPERATOR");
 operators.set("==", "EQUALITY_OPERATOR");
 operators.set("<=", "LESS_THAN_OR_EQUAL_OPERATOR");
 operators.set(">=", "GREATER_THAN_OR_EQUAL_OPERATOR");
 operators.set("!=", "NOT_EQUAL_OPERATOR");
+
+
 operators.set("=", "ASSIGNMENT_OPERATOR");
 operators.set("+=", "ADDITION_ASSIGNMENT_OPERATOR");
 operators.set("-=", "SUBTRACTION_ASSIGNMENT_OPERATOR");
 operators.set("*=", "MULTIPLICATION_ASSIGNMENT_OPERATOR");
 operators.set("/=", "DIVISION_ASSIGNMENT_OPERATOR");
 operators.set("%=", "MODULUS_ASSIGNMENT_OPERATOR");
+
 operators.set("?", "TERNARY_OPERATOR");
 operators.set("...", "TERNARY_OPERATOR");
 operators.set("~", "TERNARY_OPERATOR");

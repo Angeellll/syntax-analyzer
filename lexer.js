@@ -105,21 +105,25 @@ function isInvalidIdentifier(token) {
   if (/^[0-9]/.test(token)) {
     return true;
   }
-
-  // check if the token starts with a letter or underscore
+  
+  // check if the token starts with a character other than a letter or underscore
   if (!/^[a-zA-Z_]/.test(token)) {
     return true;
   }
+  
   // check if the token contains any special characters except underscore
   if (/[^a-zA-Z_0-9]/.test(token)) {
     return true;
   }
-  // check if the token is not a keyword or reserved word
+  
+  // check if the token is a keyword or reserved word
   if (isKeyword(token) || isReservedWord(token)) {
     return true;
   }
+  
   return false;
 }
+
 
 // Check if a token is an increment operator
 function isIncrement(token) {
@@ -165,7 +169,8 @@ function checkConsecutive(tokens) {
   let job1 = 0;
   let job2 = [];
   let num1 = 0;
-  let num2 = [];
+  let exist = 0;
+  let ids = []
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
@@ -287,10 +292,22 @@ function checkConsecutive(tokens) {
       job2.find(x => x.token === token.token)
     ) {
       token.type = "JOB_PARAMETER_IDENTIFIER";
+    } else if (previousType === "OPEN_CURLY_BRACKET" && token.type === "CLOSE_CURLY_BRACKET") {
+      token.type = "NO_BODY";
+    } else if (token.type === "MAIN_FUNCTION_DECLARATION"){
+      exist = 1;
+    } else if (exist === 1 && token.type === "FIXED_CONSTANT"){
+      token.type = "ERROR";
+    } else if ( previousType && previousType.includes("DATATYPE_KEYWORD") && ids.find(x => x.token === token.token)) {
+      token.type = "VARIABLE_ALREADY_DECLARED";
+    } else if ( previousType && previousType.includes("DATATYPE_KEYWORD") && token.type === "IDENTIFIER") {
+      ids.push({ token: token.token});
+    } else if ( token.type === "IDENTIFIER" && !(ids.find(x => x.token === token.token))) {
+      token.type = "UNDECLARED_VARIABLE";
     }
-
     previousType = token.type;
   }
+
   return tokens;
 }
 
@@ -300,22 +317,36 @@ function checkMatchingBrackets(tokens) {
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
 
-    if (token.type === "OPEN_SQUARE_BRACKET" || token.type === "OPEN_PARENTHESIS_BRACKET" || token.type === "OPEN_CURLY_BRACKET") {
-      stack.push({ index: i, token });
-    } else if (token.type === "CLOSE_SQUARE_BRACKET" || token.type === "CLOSE_PARENTHESIS_BRACKET" || token.type === "CLOSE_CURLY_BRACKET") {
-      if (stack.length === 0) {
-        token.type = "UNEXPECTED_CHARACTER";
-      } else {
-        stack.pop();
+    const mainExist = tokens.some(token => token.type === "MAIN_FUNCTION_DECLARATION");
+
+    if (!mainExist){
+      token.type = "NO_MAIN_FUNCTION";
+    }
+    
+    if (mainExist) {
+      if (token.type === "OPEN_SQUARE_BRACKET" || token.type === "OPEN_PARENTHESIS_BRACKET" || token.type === "OPEN_CURLY_BRACKET") {
+        stack.push({ index: i, token });
+      } else if (token.type === "CLOSE_SQUARE_BRACKET" || token.type === "CLOSE_PARENTHESIS_BRACKET" || token.type === "CLOSE_CURLY_BRACKET") {
+        if (stack.length === 0) {
+          token.type = "UNEXPECTED_CHARACTER";
+        } else {
+          stack.pop();
+        }
       }
     }
+
+    
   }
+
 
   if (stack.length > 0) {
     for (let i = 0; i < stack.length; i++) {
       stack[i].token.type = "UNEXPECTED_CHARACTER";
     }
   }
+
+
+
   return tokens;
 }
 
@@ -371,7 +402,7 @@ function lexer(sourceCode) {
       } else if (isInvalidIdentifier(currentToken)) {
         tokens.push({
           token: currentToken,
-          type: "invalid_identifier", line: lineCount
+          type: "INVALID_IDENTIFIER", line: lineCount
         });
       } else if (isIdentifier(currentToken)) {
         tokens.push({
@@ -437,6 +468,9 @@ function lexer(sourceCode) {
       currentIndex += 2;
       currentChar = sourceCode[currentIndex];
       while (!(currentChar === "*" && sourceCode[currentIndex + 1] === "/")) {
+        if (currentChar === `\n`) {
+          lineCount++;
+        }
         currentToken += currentChar;
         currentIndex++;
         currentChar = sourceCode[currentIndex];
@@ -644,7 +678,7 @@ function lexer(sourceCode) {
   if (currentToken !== "") {
     tokens.push(currentToken);
   }
-  // tokens = checkMatchingBrackets(tokens)
+  tokens = checkMatchingBrackets(tokens)
   tokens = checkConsecutive(tokens);
 
   // return the tokens array

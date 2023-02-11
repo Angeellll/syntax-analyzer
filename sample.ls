@@ -1,11 +1,22 @@
-// HELLO
+    fixed int number = 10;
+    fixed str rawr = "ehy";
+     
+    /* Output 
+    Statements
+    */
 
-show(hello);
-show("hello");
-show("hello", ey);
+    main {
+     str EYY = "ehy";
+     str ehe = "5";
+     str s_s = "ehy";
+     
+     int RAWR = 10;
+     int RAWR = 10;
+    }
 
 
-boolean rawr = True;
-str pi = "Hello";
-int pi = 3;
-int pi = 3;
+
+
+
+
+
