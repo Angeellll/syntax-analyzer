@@ -51,6 +51,15 @@ const numbers = [
     "NEGATIVE_DECIMAL_NUMBER",
 ];
 
+const functions = [
+    "JOB_FUNCTION_KEYWORD",
+    "JOB_IDENTIFIER",
+    "OPEN_PARENTHESIS_PARAMETER",
+    "JOB_PARAMETER_IDENTIFIER",
+    "CLOSE_PARENTHESIS_PARAMETER",
+    "OPEN_CURLY_BRACKET",
+];
+
 // BRACKETS
 const brackets = [
     "OPEN_PARENTHESIS_BRACKET",
@@ -72,7 +81,8 @@ const keywords = [
     "WHILE_KEYWORD",
     "FIXED_CONSTANT",
     "CONSTANT_IDENTIFIER",
-    "MAIN_FUNCTION_DECLARATION"
+    "MAIN_FUNCTION_DECLARATION", 
+    "RETURN_KEYWORD",
 ];
 
 // DATA TYPE KEYWORD
@@ -97,7 +107,6 @@ const syntaxRules = [];
 
 // for number declarations
 for (let i = 0; i < numberDatatypes.length; i++) {
-
     syntaxRules[numberDatatypes[i]] = [];
 
     for (let j = 0; j < numbers.length; j++) {
@@ -110,6 +119,28 @@ for (let i = 0; i < numberDatatypes.length; i++) {
         ]);
 
         for (let k = 0; k < arithmetic.length; k++) {
+            // int num = num + num;
+            syntaxRules[numberDatatypes[i]].push([
+                numberDatatypes[i],
+                id,
+                assignments[0],
+                id,
+                arithmetic[k],
+                id,
+                delimeters[0],
+            ]);
+
+            // int num = num + num;
+            syntaxRules[numberDatatypes[i]].push([
+                numberDatatypes[i],
+                id,
+                assignments[0],
+                functions[3],
+                arithmetic[k],
+                functions[3],
+                delimeters[0],
+            ]);
+
             // id + num;
             syntaxRules[numberDatatypes[i]].push([
                 numberDatatypes[i],
@@ -143,7 +174,6 @@ for (let i = 0; i < numberDatatypes.length; i++) {
                 delimeters[0],
             ]);
 
-
             // id + id;
             syntaxRules[numberDatatypes[i]].push([
                 numberDatatypes[i],
@@ -156,7 +186,6 @@ for (let i = 0; i < numberDatatypes.length; i++) {
             ]);
 
             for (let l = 0; l < numbers.length; l++) {
-
                 // int num = 1 + 2.2;
                 syntaxRules[numberDatatypes[i]].push([
                     numberDatatypes[i],
@@ -182,7 +211,6 @@ for (let i = 0; i < numberDatatypes.length; i++) {
                             numbers[a2],
                             delimeters[0],
                         ]);
-
 
                         for (let a3 = 0; a3 < arithmetic.length; a3++) {
                             // int num = 10 + 32 + 32;
@@ -230,8 +258,6 @@ for (let i = 0; i < numberDatatypes.length; i++) {
                 ]);
             }
         }
-
-
     }
 
     for (let a = 0; a < assignments.length; a++)
@@ -244,15 +270,18 @@ for (let i = 0; i < numberDatatypes.length; i++) {
             delimeters[0],
         ]);
 
-
-
     syntaxRules[numberDatatypes[i]].push([numberDatatypes[i], id, delimeters[0]]);
-    syntaxRules[numberDatatypes[i]].push([numberDatatypes[i], id, assignments[0], id, delimeters[0]]);
+    syntaxRules[numberDatatypes[i]].push([
+        numberDatatypes[i],
+        id,
+        assignments[0],
+        id,
+        delimeters[0],
+    ]);
 }
 
 // for string declarations
 for (let i = 0; i < stringDatatypes.length; i++) {
-
     syntaxRules[stringDatatypes[i]] = [];
 
     syntaxRules[stringDatatypes[i]].push([
@@ -288,6 +317,18 @@ for (let i = 0; i < stringDatatypes.length; i++) {
     ]);
 
     syntaxRules[stringDatatypes[i]].push([stringDatatypes[i], id, delimeters[0]]);
+    syntaxRules[stringDatatypes[i]].push([
+        stringDatatypes[i],
+        id,
+        assignments[0],
+        functions[1],
+        brackets[0],
+        id,
+        delimeters[1],
+        id,
+        brackets[1],
+        delimeters[0],
+    ]);
 }
 
 // for boolean declarations
@@ -324,8 +365,28 @@ for (let i = 0; i < 1; i++) {
     syntaxRules[keywords[i]].push([
         keywords[0],
         brackets[0],
+        id,
+        delimeters[1],
+        id,
+        brackets[1],
+        delimeters[0],
+    ]);
+
+    syntaxRules[keywords[i]].push([
+        keywords[0],
+        brackets[0],
         ...string.values(),
         delimeters[1],
+        id,
+        brackets[1],
+        delimeters[0],
+    ]);
+
+    syntaxRules[keywords[i]].push([
+        keywords[0],
+        brackets[0],
+        id,
+        arithmetic[0],
         id,
         brackets[1],
         delimeters[0],
@@ -347,6 +408,19 @@ for (let i = 0; i < 1; i++) {
         id,
         delimeters[1],
         ...string.values(),
+        brackets[1],
+        delimeters[0],
+    ]);
+
+    syntaxRules[keywords[i]].push([
+        keywords[0],
+        brackets[0],
+        functions[1],
+        brackets[0],
+        id,
+        delimeters[1],
+        id,
+        brackets[1],
         brackets[1],
         delimeters[0],
     ]);
@@ -371,13 +445,20 @@ for (let i = 0; i < 1; i++) {
                 delimeters[0],
             ]);
 
+            syntaxRules[id].push([
+                id,
+                assignments[0],
+                functions[3],
+                arithmetic[k],
+                functions[3],
+                delimeters[0],
+            ]);
 
             for (let l = 0; l < numbers.length; l++) {
                 // num = 10;
                 syntaxRules[id].push([id, assignments[j], numbers[l], delimeters[0]]);
 
                 for (let m = 0; m < numbers.length; m++) {
-
                     syntaxRules[id].push([
                         id,
                         assignments[0],
@@ -406,11 +487,9 @@ for (let i = 0; i < 1; i++) {
                         delimeters[0],
                     ]);
 
-
                     for (let n = 0; n < arithmetic.length; n++) {
-
                         for (let o = 0; o < numbers.length; o++) {
-
+                            // i = 23
                             syntaxRules[id].push([
                                 id,
                                 assignments[0],
@@ -421,13 +500,36 @@ for (let i = 0; i < 1; i++) {
                                 numbers[o],
                                 delimeters[0],
                             ]);
+
+                            syntaxRules[id].push([
+                                id,
+                                assignments[0],
+                                id,
+                                arithmetic[k],
+                                numbers[l],
+                                arithmetic[k],
+                                numbers[m],
+                                arithmetic[n],
+                                numbers[o],
+                                delimeters[0],
+                            ]);
                         }
                     }
                 }
-
             }
         }
     }
+
+    // number = enter("Enter number: ");
+    syntaxRules[id].push([
+        id,
+        assignments[0],
+        keywords[1],
+        brackets[0],
+        ...string.values(),
+        brackets[1],
+        delimeters[0],
+    ]);
 }
 //    if (a >= b) {
 for (let i = 0; i < relationals.length; i++) {
@@ -472,17 +574,32 @@ for (let i = 0; i < relationals.length; i++) {
             brackets[2],
         ]);
 
-        syntaxRules[keywords[5]].push([
-            keywords[5],
-            brackets[0],
-            id,
-            keywords[6],
-            id,
-            keywords[7],
-            id,
-            brackets[1],
-            brackets[2],
-        ]);
+        // for ( i in i ... 21) {
+        for (let a = 0; a < numbers.length; a++) {
+            syntaxRules[keywords[5]].push([
+                keywords[5],
+                brackets[0],
+                id,
+                keywords[6],
+                id,
+                keywords[7],
+                numbers[a],
+                brackets[1],
+                brackets[2],
+            ]);
+
+            syntaxRules[keywords[5]].push([
+                keywords[5],
+                brackets[0],
+                id,
+                keywords[6],
+                numbers[a],
+                keywords[7],
+                numbers[a],
+                brackets[1],
+                brackets[2],
+            ]);
+        }
 
         //  while (True) {
         syntaxRules[keywords[8]].push([
@@ -499,11 +616,9 @@ for (let i = 0; i < relationals.length; i++) {
 // CONSTANT
 
 for (let i = 0; i < 1; i++) {
-
     syntaxRules[keywords[9]] = [];
 
     for (let j = 0; j < numberDatatypes.length; j++) {
-
         for (let k = 0; k < numbers.length; k++) {
             syntaxRules[keywords[9]].push([
                 keywords[9],
@@ -538,7 +653,23 @@ syntaxRules[brackets[3]] = [];
 syntaxRules[brackets[3]].push([brackets[3]]);
 
 syntaxRules[keywords[11]] = [];
-syntaxRules[keywords[11]].push([keywords[11], brackets[2]]);
+syntaxRules[keywords[11]].push([keywords[11], brackets[0], brackets[1], brackets[2]]);
+
+syntaxRules[functions[0]] = [];
+syntaxRules[functions[0]].push([...functions.values()]);
+syntaxRules[functions[0]].push([
+    functions[0],
+    functions[1],
+    functions[2],
+    functions[3],
+    delimeters[1],
+    functions[3],
+    functions[4],
+    brackets[2],
+]);
+
+syntaxRules[keywords[12]] = [];
+syntaxRules[keywords[12]].push([keywords[12], id, delimeters[0]]);
 
 
 module.exports = { syntaxRules };

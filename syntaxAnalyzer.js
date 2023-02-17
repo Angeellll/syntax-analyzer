@@ -4,6 +4,13 @@ const lexer = lexerModule.lexer;
 const syntaxRulesModule = require('./syntaxRules');
 const syntaxRules = syntaxRulesModule.syntaxRules;
 
+
+const translateModule = require('./translate.js');
+const translate = translateModule.translate;
+
+
+let correctSyntax = 0;
+
 function syntaxAnalyzer(tokens) {
 
     let index = 0;
@@ -13,7 +20,7 @@ function syntaxAnalyzer(tokens) {
     let errorIndex = 0
 
     // console.log(syntaxRules)
-    console.log(tokens)
+    // console.log(tokens)
     while (index < tokens.length) {
         if (!currentRules) {
             if (syntaxRules[tokens[index].type]) currentRules = syntaxRules[tokens[index].type];
@@ -73,11 +80,10 @@ function syntaxAnalyzer(tokens) {
     }
 
     if (correct) {
-        console.log("\nSyntactically correct.\n");
+        correctSyntax = 1;
+        // console.log("\nSyntactically correct.\n");
     } 
 }
-
-
 
 
 
@@ -85,13 +91,19 @@ const fs = require("fs");
 
 let code;
 
-fs.readFile("./sample.ls", "utf-8", (err, data) => {
+// const prompt = require('prompt-sync')();
+// console.log("\n")
+// const openFile = prompt("Run file: ");
+
+// fs.readFile("./" + openFile, "utf-8", (err, data) => {
+fs.readFile("./sample.ls", "utf-8", (err, data) => {    
     if (err) {
         throw err;
     }
     code = data;
     const source = lexer(code);
     syntaxAnalyzer(source);
+    if (correctSyntax === 1) translate(source);
 });
 
 

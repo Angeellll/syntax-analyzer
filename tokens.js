@@ -32,6 +32,7 @@ keywords.set("backward", "BACKWARD_JUMP_KEYWORD");
 keywords.set("show", "SHOW_KEYWORD");
 keywords.set("enter", "ENTER_KEYWORD");
 keywords.set("while", "WHILE_KEYWORD");
+keywords.set("return", "RETURN_KEYWORD");
 
 const operators = new Map();
 operators.set("+", "ADDITION_OPERATOR");

@@ -171,6 +171,7 @@ function checkConsecutive(tokens) {
   let num1 = 0;
   let exist = 0;
   let ids = []
+  let jobExist = []
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
@@ -262,6 +263,12 @@ function checkConsecutive(tokens) {
     ) {
       token.type = "JOB_IDENTIFIER";
       job1 = 1;
+      jobExist.push({ token: token.token});
+    } else if (
+      token.type === "IDENTIFIER" && jobExist.find(x => x.token === token.token)
+    ) {
+      token.type = "JOB_IDENTIFIER";
+      
     } else if (
       previousType === "JOB_IDENTIFIER" &&
       token.type === "OPEN_PARENTHESIS_BRACKET" &&
@@ -275,23 +282,31 @@ function checkConsecutive(tokens) {
     ) {
       token.type = "CLOSE_PARENTHESIS_PARAMETER";
       job1 = 3;
+      // WHEN NO DELIMETERS BETWEEN IDENTIFIERS
     } else if (
       previousType === "JOB_PARAMETER_IDENTIFIER" &&
       token.type === "IDENTIFIER" &&
       job1 === 2
     ) {
       token.type = "INVALID";
+
+
     } else if (
       token.type === "IDENTIFIER" &&
       job1 === 2
     ) {
       token.type = "JOB_PARAMETER_IDENTIFIER";
       job2.push({ token: token.token, index: i });
+
+      // SETS JOB IDENTIFIERS
     } else if (
       job1 === 3 &&
       job2.find(x => x.token === token.token)
     ) {
       token.type = "JOB_PARAMETER_IDENTIFIER";
+      const index = job2.findIndex(x => x.token === token.token);
+      job2.splice(index, 1);
+
     } else if (previousType === "OPEN_CURLY_BRACKET" && token.type === "CLOSE_CURLY_BRACKET") {
       token.type = "NO_BODY";
     } else if (token.type === "MAIN_FUNCTION_DECLARATION"){
